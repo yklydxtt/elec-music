@@ -28,14 +28,16 @@ function createWindow() {
       parent: win
     }, './renderer/add.html')
   })
-  ipcMain.on('select',()=>{
+  ipcMain.on('select',(e)=>{
     dialog.showOpenDialog({
       properties: ['openFile'],
       filters: [
         { name: 'music', extensions: ['mp3'] }
       ]
     }).then((file)=>{
-      console.log(file)
+      if(file){
+        e.reply('add',file)
+      }
     })
   })
 }
