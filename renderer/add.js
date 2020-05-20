@@ -6,7 +6,7 @@ document.getElementById('select').addEventListener('click',()=>{
 ipcRenderer.on('add',(e,{filePaths})=>{
     console.log(filePaths)
     const html=filePaths.map((item)=>{
-        return `<li class="list-group-item mt-2">${path.basename(item)}</li>`
+        return `<li class="list-group-item">${path.basename(item)}</li>`
     })
     document.getElementById('add').innerHTML+=html.join()
 })
