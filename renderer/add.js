@@ -11,7 +11,7 @@ ipcRenderer.on('add', (e, { filePaths }) => {
         })
         document.getElementById('add').innerHTML += html.join();
     }
-    musicFilesPath=filePaths;
+    musicFilesPath.push(...filePaths);
 })
 document.getElementById('add-music').addEventListener('click', () => {
     ipcRenderer.send('add-tracks', musicFilesPath);

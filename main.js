@@ -32,7 +32,8 @@ function createWindow() {
     }, './renderer/add.html')
   })
   ipcMain.on('add-tracks',(e,tracks)=>{
-    console.log(tracks);
+    myStore.addTracks(tracks);
+    console.log(myStore.getTracks());
   })
   ipcMain.on('select',(e)=>{
     dialog.showOpenDialog({
@@ -46,8 +47,9 @@ function createWindow() {
       }
     })
   })
-  ipcMain.on('add-music',()=>{
-    console.log(1)
+  ipcMain.on('add-music',(e,tracks)=>{
+    myStore.addTracks(tracks);
+    console.log(myStore.getTracks(),11);
   })
 }
 
