@@ -16,10 +16,10 @@ class DataStore extends Store {
         const trackWithProps=tracks.map(track=>({
             id:uuidv4(),
             path:track,
-            fileNmae:path.basename(track)
+            fileName:path.basename(track)
         })).filter(value=>{
             const currentPath=this.getTracks().map(item=>item.path)
-            return currentPath.indexOf(value)<0;
+            return currentPath.indexOf(value.path)<0;
         })
         this.tracks=[...this.tracks,...trackWithProps];
         return this.set('tracks',this.tracks);

@@ -23,7 +23,11 @@ class appWindow extends BrowserWindow {
 
 function createWindow() {
   // 创建浏览器窗口
-  let win = new appWindow({}, './renderer/index.html')
+  let win = new appWindow({}, './renderer/index.html');
+  win.webContents.on('did-finish-load',()=>{
+    console.log('did finish');
+    win.send('getTracks',myStore.getTracks())
+  })
   ipcMain.on('add', () => {
     let addMusic = new appWindow({
       width: 600,
@@ -33,7 +37,7 @@ function createWindow() {
   })
   ipcMain.on('add-tracks',(e,tracks)=>{
     myStore.addTracks(tracks);
-    console.log(myStore.getTracks());
+    win.send('getTracks',myStore.getTracks())
   })
   ipcMain.on('select',(e)=>{
     dialog.showOpenDialog({
