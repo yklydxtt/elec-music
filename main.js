@@ -55,6 +55,10 @@ function createWindow() {
     myStore.addTracks(tracks);
     console.log(myStore.getTracks(),11);
   })
+  ipcMain.on('delete',(e,id)=>{
+    myStore.deleteTracks(id);
+    win.send('getTracks',myStore.getTracks())
+  })
 }
 
 app.whenReady().then(createWindow)

@@ -1,26 +1,73 @@
-const { ipcRenderer } = require('electron')
-document.getElementById('add-music').addEventListener("click",()=>{
-    ipcRenderer.send('add', 'music')
+const { ipcRenderer } = require('electron');
+let allTracks, currentTrack;
+let musicAudio = new Audio();
+document.getElementById('add-music').addEventListener("click", () => {
+  ipcRenderer.send('add', 'music');
 })
-ipcRenderer.on('getTracks',(e,arg)=>{
-    const songLIst=document.getElementById('songs');
-    arg.forEach(element => {
-        songLIst.innerHTML+=`<div class="p-2 border border-secondary mt-4">
-        <svg class="bi bi-music-note-beamed mr-4" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 13c0 1.105-1.12 2-2.5 2S1 14.105 1 13c0-1.104 1.12-2 2.5-2s2.5.896 2.5 2zm9-2c0 1.105-1.12 2-2.5 2s-2.5-.895-2.5-2 1.12-2 2.5-2 2.5.895 2.5 2z"/>
-        <path fill-rule="evenodd" d="M14 11V2h1v9h-1zM6 3v10H5V3h1z"/>
-        <path d="M5 2.905a1 1 0 0 1 .9-.995l8-.8a1 1 0 0 1 1.1.995V3L5 4V2.905z"/>
-      </svg>${element.fileName}
-      <div class="d-flex flex-row-reverse align-items-center">
-      <svg class="bi bi-trash" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-    </svg>
-      <svg class="bi bi-play-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
-    </svg>
-</div>
+
+ipcRenderer.on('getTracks', (e, arg) => {
+  const songLIst = document.getElementById('songs');
+  const songs = document.getElementById('songs');
+  console.log(songs, allTracks)
+  songs.addEventListener('click', e => {
+    e.preventDefault();
+    const { dataset, classList } = e.target;
+    let src = e.target.src;
+    const id = dataset && dataset.id;
+    console.log(id, e.target)
+    if (id && classList.contains('play')) {
+      if (currentTrack && currentTrack.id === id) {
+        // 继续播放音乐
+        musicAudio.play();
+        if (dataset.status !== 'on') {
+          musicAudio.play();
+          e.target.setAttribute("src", '../node_modules/bootstrap-icons/icons/pause-fill.svg')
+          dataset.status = 'on';
+        } else {
+          musicAudio.pause();
+          e.target.setAttribute("src", '../node_modules/bootstrap-icons/icons/play-fill.svg')
+          dataset.status = 'off';
+        }
+      } else {
+        //播放新的音乐，还原新的图标；
+        currentTrack = arg.find(element => element.id === id);
+        const a=document.getElementsByClassName('play');
+        const newArr=[];
+        for(let i=0;i<a.length;++i){
+          newArr.push(a[i]);
+        }
+        for(let i=0;i<newArr.length;++i){
+          newArr[i].dataset.status = 'off';
+          newArr[i].setAttribute("src", '../node_modules/bootstrap-icons/icons/play-fill.svg')
+        }
+        console.log(currentTrack)
+        musicAudio.src = currentTrack.path;
+        if (dataset.status !== 'on') {
+          musicAudio.play();
+          e.target.setAttribute("src", '../node_modules/bootstrap-icons/icons/pause-fill.svg')
+          dataset.status = 'on';
+        } else {
+          musicAudio.pause();
+          e.target.setAttribute("src", '../node_modules/bootstrap-icons/icons/play-fill.svg')
+          dataset.status = 'off';
+        }
+      }
+    }
+    if (id && classList.contains('trash')) {
+      // 删除
+      ipcRenderer.send('delete',id)
+    }
+  })
+  arg.forEach(element => {
+    songLIst.innerHTML += `<div class="p-2 border border-secondary mt-4 d-flex justify-content-between">
+    <div>
+    <img src="../node_modules/bootstrap-icons/icons/music-note-beamed.svg" width="32" height="32" />${element.fileName}
+    </div>
+    <div>
+    <img src="../node_modules/bootstrap-icons/icons/trash.svg" width="20" height="20" class="click trash" data-id=${element.id} />
+  <img src="../node_modules/bootstrap-icons/icons/play-fill.svg" width="32" height="32" class="click play" data-id=${element.id} />
+    </div>
       </div>`
-    });
-    console.log(arg)
+  });
+  allTracks = arg;
 })
